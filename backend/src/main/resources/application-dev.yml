@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/marytv_dev
+    username: dev_user
+    password: dev_pass
+  jpa:
+    show-sql: true
+server:
+  port: 8080
