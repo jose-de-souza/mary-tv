@@ -7,8 +7,11 @@ CREATE TABLE categories
 
 CREATE TABLE events
 (
-    id   BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
+    id          BIGSERIAL PRIMARY KEY,
+    name        VARCHAR(255) NOT NULL,
+    description TEXT,
+    category_id BIGINT REFERENCES categories (id),
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Core content table
@@ -52,5 +55,5 @@ CREATE TABLE users
     username      VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255)       NOT NULL,
     role          VARCHAR(20)        NOT NULL DEFAULT 'USER',
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at    TIMESTAMP                   DEFAULT CURRENT_TIMESTAMP
 );
