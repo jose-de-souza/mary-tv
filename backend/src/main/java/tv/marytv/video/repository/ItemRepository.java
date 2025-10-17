@@ -6,8 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import tv.marytv.video.entity.Category;
-import tv.marytv.video.entity.Event;
 import tv.marytv.video.entity.Item;
 
 import java.util.Date;
@@ -17,6 +15,7 @@ import java.util.Optional;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
+    // Keep other queries as they are
     @Query("SELECT i FROM Item i LEFT JOIN FETCH i.children LEFT JOIN FETCH i.parent WHERE i.parent IS NULL")
     List<Item> findAllWithChildren();
 
@@ -47,6 +46,17 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("SELECT i FROM Item i WHERE i.isHeadline = true")
     Page<Item> findHeadliners(Pageable pageable);
 
-    @Query("SELECT i FROM Item i WHERE i.contentType = 'SERIES_HEADER' OR i.contentType = 'STANDALONE' AND (:categoryId IS NULL OR i.category.id = :categoryId) AND (:fromDate IS NULL OR i.itemDate >= :fromDate) AND (:toDate IS NULL OR i.itemDate <= :toDate) AND (:keyword IS NULL OR i.title LIKE %:keyword% OR i.description LIKE %:keyword%) AND (:isHeadline IS NULL OR i.isHeadline = :isHeadline)")
-    Page<Item> findShowsFiltered(@Param("categoryId") Long categoryId, @Param("fromDate") Date fromDate, @Param("toDate") Date toDate, @Param("keyword") String keyword, @Param("isHeadline") Boolean isHeadline, Pageable pageable);
+    // Corrected findShowsFiltered Query
+    @Query("SELECT i FROM Item i WHERE (i.contentType = 'SERIES_HEADER' OR i.contentType = 'STANDALONE') " +
+            "AND (:categoryId IS NULL OR i.category.id = :categoryId) " +
+            "AND (CAST(:fromDate AS date) IS NULL OR i.itemDate >= :fromDate) " + // Cast null date params
+            "AND (CAST(:toDate AS date) IS NULL OR i.itemDate <= :toDate) " +     // Cast null date params
+            "AND (:keyword IS NULL OR (i.title LIKE %:keyword% OR i.description LIKE %:keyword%)) " +
+            "AND (:isHeadline IS NULL OR i.isHeadline = :isHeadline)")
+    Page<Item> findShowsFiltered(@Param("categoryId") Long categoryId,
+                                 @Param("fromDate") Date fromDate,
+                                 @Param("toDate") Date toDate,
+                                 @Param("keyword") String keyword,
+                                 @Param("isHeadline") Boolean isHeadline,
+                                 Pageable pageable);
 }
