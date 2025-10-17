@@ -3,21 +3,22 @@ package tv.marytv.video.mapper;
 import tv.marytv.video.dto.EventDto;
 import tv.marytv.video.dto.EventUpsertDto;
 import tv.marytv.video.entity.Event;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
+@Component
+public class EventMapper {
 
-@Mapper(componentModel = "spring")
-public interface EventMapper {
+    public EventDto toDto(Event event) {
+        return new EventDto(event.getId(), event.getName());
+    }
 
-    EventMapper INSTANCE = Mappers.getMapper(EventMapper.class);
+    public Event toEntity(EventUpsertDto dto) {
+        Event event = new Event();
+        updateEntityFromDto(dto, event);
+        return event;
+    }
 
-    EventDto toDto(Event event);
-
-    List<EventDto> toDtoList(List<Event> events);
-
-    @Mapping(target = "id", ignore = true)
-    Event toEntity(EventUpsertDto eventUpsertDto);
+    public void updateEntityFromDto(EventUpsertDto dto, Event event) {
+        event.setName(dto.name());
+    }
 }

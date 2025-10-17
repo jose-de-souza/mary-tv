@@ -19,7 +19,7 @@ CREATE TABLE items
     description TEXT,
     icon_url    VARCHAR(512),
     video_url   VARCHAR(512),
-    item_date   DATE,
+    item_date   TIMESTAMP,
     is_new      BOOLEAN   DEFAULT TRUE,
     is_headline BOOLEAN   DEFAULT FALSE,
     parent_id   INTEGER REFERENCES items (id) ON DELETE CASCADE,
@@ -51,5 +51,5 @@ CREATE TABLE users
     id            SERIAL PRIMARY KEY,
     username      VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255)       NOT NULL,
-    role          VARCHAR(20)        NOT NULL -- e.g., 'ADMIN'
+    role          VARCHAR(20)        NOT NULL DEFAULT 'USER'
 );

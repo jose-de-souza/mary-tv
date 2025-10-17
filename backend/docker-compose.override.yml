@@ -11,9 +11,10 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
-    image: marytv-backend:dev
+    image: mary-tv-backend:dev
+    container_name: marytv-backend-dev  # Dev-specific variant for local testing
 
   postgres:
     ports:
-      # Expose the database port to your host machine for easy access
       - "5432:5432"
+    container_name: marytv-postgres-dev  # Dev-specific variant

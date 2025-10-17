@@ -1,5 +1,4 @@
 # --- Build Stage ---
-# Use an official Maven image to build the application.
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 
 # Set the working directory
@@ -17,7 +16,6 @@ COPY src ./src
 # Package the application
 RUN mvn package -DskipTests
 
-
 # --- Production Stage ---
 # Use a minimal and secure Java Runtime Environment (JRE) image. This creates a much smaller final image.
 FROM openjdk:21-jdk-slim
@@ -26,7 +24,7 @@ FROM openjdk:21-jdk-slim
 WORKDIR /app
 
 # Copy only the built application JAR from the 'build' stage
-COPY --from=build /workspace/target/backend-0.0.1-SNAPSHOT.jar /app/app.jar
+COPY --from=build /workspace/target/marytv-backend-0.0.1-SNAPSHOT.jar /app/app.jar
 
 # Expose the application port
 EXPOSE 8080
