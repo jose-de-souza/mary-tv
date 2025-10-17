@@ -43,7 +43,8 @@ public class AuthService {
         User user = new User();
         user.setUsername(dto.username());
         user.setPasswordHash(passwordEncoder.encode(dto.password()));
-        user.setRole(dto.role() != null ? dto.role() : "USER");
+        // Set ADMIN for "admin" username
+        user.setRole("admin".equals(dto.username()) ? "ADMIN" : (dto.role() != null ? dto.role() : "USER"));
         userRepository.save(user);
     }
 }

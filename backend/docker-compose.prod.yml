@@ -6,24 +6,42 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - DB_HOST=postgres
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     container_name: marytv-backend
     restart: always
+    networks:
+      - app-network
 
   postgres:
     env_file:
       - .env.prod
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
     container_name: marytv-postgres
     restart: always
+    networks:
+      - app-network
 
   nginx:
+    # Automate the frontend build
     build:
-      context: ..
-      dockerfile: backend/nginx/frontend.Dockerfile
+      context: .. # The build context is the project root
+      dockerfile: backend/nginx/frontend.Dockerfile # Point to the frontend Dockerfile
     container_name: marytv-nginx
     ports:
+      # Expose HTTP and HTTPS ports to the outside world
       - "80:80"
       - "443:443"
     volumes:
+      # The Nginx config volume is now handled by the frontend.Dockerfile
+      # The frontend build files volume is handled by the frontend.Dockerfile
+      # Mount the Let's Encrypt SSL certificates from the host into the container
       - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - app
@@ -31,5 +49,6 @@ services:
       - app-network
     restart: always
 
+# The app-network is defined in the base docker-compose.yml
 networks:
   app-network:
