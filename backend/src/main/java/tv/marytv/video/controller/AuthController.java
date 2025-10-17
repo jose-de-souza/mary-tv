@@ -23,11 +23,4 @@ public class AuthController {
         LoginResponse response = authService.login(request);
         return ResponseEntity.ok(new ApiResponse<>(true, 200, "Login successful", response));
     }
-
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse<LoginResponse>> register(@RequestBody LoginRequest request) {
-        authService.register(new tv.marytv.video.dto.UserUpsertDto(request.username(), request.password(), null));
-        LoginResponse response = authService.login(request);
-        return ResponseEntity.ok(new ApiResponse<>(true, 201, "Registration successful", response));
-    }
 }
