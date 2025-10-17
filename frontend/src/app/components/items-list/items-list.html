@@ -1,0 +1,73 @@
+<div class="items-list-container">
+  <form [formGroup]="filterForm" class="filter-form">
+    <mat-form-field appearance="fill">
+      <mat-label>Keyword</mat-label>
+      <input matInput formControlName="keyword" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Category</mat-label>
+      <mat-select formControlName="categoryId">
+        <mat-option [value]="null">All</mat-option>
+        <mat-option *ngFor="let category of categories" [value]="category.id">
+          {{ category.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Headliner</mat-label>
+      <mat-select formControlName="isHeadline">
+        <mat-option [value]="null">All</mat-option>
+        <mat-option [value]="true">Yes</mat-option>
+        <mat-option [value]="false">No</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Enter a date range</mat-label>
+      <mat-date-range-input [rangePicker]="picker">
+        <input
+          matStartDate
+          placeholder="Start date"
+          formControlName="fromDate"
+        />
+        <input matEndDate placeholder="End date" formControlName="toDate" />
+      </mat-date-range-input>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" (click)="applyFilters()">
+      Apply
+    </button>
+    <button mat-button (click)="resetFilters()">Reset</button>
+
+    <a
+      mat-stroked-button
+      color="accent"
+      routerLink="/headliners"
+      *ngIf="hasHeadliners"
+    >
+      View Headliners
+    </a>
+  </form>
+
+  <app-data-table
+    [data]="items"
+    [columns]="columns"
+    (rowClick)="onRowClicked($event)"
+    (edit)="openItemEditDialog($event)"
+    (delete)="deleteItem($event)"
+  ></app-data-table>
+
+  <button
+    mat-fab
+    color="primary"
+    class="add-button"
+    (click)="openItemEditDialog()"
+    *ngIf="authService.isAuthenticated()"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
