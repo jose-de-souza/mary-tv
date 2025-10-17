@@ -1,0 +1,51 @@
+<h1 mat-dialog-title>{{ data.user ? "Edit User" : "Create User" }}</h1>
+<div mat-dialog-content>
+  <form [formGroup]="userForm">
+    <mat-form-field appearance="fill">
+      <mat-label>Username</mat-label>
+      <input matInput formControlName="username" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Password</mat-label>
+      <input
+        matInput
+        [type]="hidePassword ? 'password' : 'text'"
+        formControlName="password"
+        [required]="!data.user"
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        (click)="hidePassword = !hidePassword"
+        type="button"
+      >
+        <mat-icon>{{
+          hidePassword ? "visibility_off" : "visibility"
+        }}</mat-icon>
+      </button>
+      <mat-hint
+        >Leave blank to keep the current password when editing.</mat-hint
+      >
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Role</mat-label>
+      <mat-select formControlName="role" required>
+        <mat-option value="USER">User</mat-option>
+        <mat-option value="ADMIN">Admin</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="userForm.invalid"
+    (click)="onSave()"
+  >
+    Save
+  </button>
+</div>

@@ -1,0 +1,26 @@
+<div class="episodes-list-container">
+  <h1>Episodes for {{ seriesTitle }}</h1>
+
+  <app-data-table
+    [data]="episodes"
+    [columns]="columns"
+    (rowClick)="playVideo($event)"
+    (edit)="openItemEditDialog($event)"
+    (delete)="deleteItem($event)"
+  ></app-data-table>
+
+  <mat-paginator
+    [length]="totalElements"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[5, 10, 20]"
+    (page)="loadEpisodes($event)"
+    showFirstLastButtons
+    aria-label="Select page of episodes"
+  >
+  </mat-paginator>
+
+  <button mat-stroked-button class="back-button" routerLink="/items">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Back to All Shows</span>
+  </button>
+</div>

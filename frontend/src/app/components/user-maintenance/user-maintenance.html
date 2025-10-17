@@ -1,0 +1,18 @@
+<div class="user-maintenance-container">
+  <h1>User Maintenance</h1>
+  <app-data-table
+    [data]="users"
+    [columns]="columns"
+    (edit)="openUserEditDialog($event)"
+    (delete)="deleteUser($event)"
+  ></app-data-table>
+
+  <button
+    mat-fab
+    color="primary"
+    class="add-button"
+    (click)="openUserEditDialog()"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+</div>

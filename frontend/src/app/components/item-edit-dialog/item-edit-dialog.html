@@ -1,0 +1,59 @@
+<h1 mat-dialog-title>{{ data.item ? "Edit Item" : "Create Item" }}</h1>
+<div mat-dialog-content>
+  <form [formGroup]="itemForm">
+    <mat-form-field appearance="fill">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Content Type</mat-label>
+      <mat-select formControlName="contentType" required>
+        <mat-option value="SERIES_HEADER">Series Header</mat-option>
+        <mat-option value="STANDALONE">Standalone</mat-option>
+        <mat-option value="EPISODE">Episode</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Icon URL</mat-label>
+      <input matInput formControlName="iconUrl" />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Video URL</mat-label>
+      <input matInput formControlName="videoUrl" required />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Item Date</mat-label>
+      <input
+        matInput
+        [matDatepicker]="picker"
+        formControlName="itemDate"
+        required
+      />
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-checkbox formControlName="isNew">Is New</mat-checkbox>
+    <mat-checkbox formControlName="isHeadline">Is Headline</mat-checkbox>
+  </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    color="primary"
+    [disabled]="itemForm.invalid"
+    (click)="onSave()"
+  >
+    Save
+  </button>
+</div>

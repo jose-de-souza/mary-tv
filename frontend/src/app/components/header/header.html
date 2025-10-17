@@ -1,0 +1,31 @@
+<mat-toolbar color="primary">
+  <div class="toolbar-content">
+    <a routerLink="/" class="logo">
+      <img src="assets/icon.png" alt="Mary TV" class="logo-img" />
+      <span>Mary TV</span>
+    </a>
+    <div class="nav-links">
+      <a mat-button routerLink="/items" routerLinkActive="active">Shows</a>
+      <a
+        mat-button
+        routerLink="/user-maintenance"
+        routerLinkActive="active"
+        *ngIf="authService.isAuthenticated()"
+      >
+        User Maintenance
+      </a>
+    </div>
+    <div class="user-actions">
+      <button
+        mat-button
+        *ngIf="!authService.isAuthenticated()"
+        routerLink="/login"
+      >
+        Login
+      </button>
+      <button mat-button *ngIf="authService.isAuthenticated()" (click)="logout()">
+        Logout
+      </button>
+    </div>
+  </div>
+</mat-toolbar>
