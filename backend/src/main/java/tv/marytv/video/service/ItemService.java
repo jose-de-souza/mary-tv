@@ -7,9 +7,12 @@ import tv.marytv.video.exception.ItemHasChildrenException;
 import tv.marytv.video.mapper.ItemMapper;
 import tv.marytv.video.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +31,26 @@ public class ItemService {
         return items.stream()
                 .map(itemMapper::toDtoWithChildren)
                 .collect(Collectors.toList());
+    }
+
+    public Page<ItemDto> getShows(Pageable pageable) {
+        Page<Item> items = itemRepository.findShows(pageable);
+        return items.map(itemMapper::toDto);
+    }
+
+    public Page<ItemDto> getShowsFiltered(Long categoryId, Date fromDate, Date toDate, String keyword, Boolean isHeadline, Pageable pageable) {
+        Page<Item> items = itemRepository.findShowsFiltered(categoryId, fromDate, toDate, keyword, isHeadline, pageable);
+        return items.map(itemMapper::toDto);
+    }
+
+    public Page<ItemDto> getHeadliners(Pageable pageable) {
+        Page<Item> items = itemRepository.findHeadliners(pageable);
+        return items.map(itemMapper::toDto);
+    }
+
+    public Page<ItemDto> getEpisodes(Long seriesId, Pageable pageable) {
+        Page<Item> items = itemRepository.findByParentId(seriesId, pageable);
+        return items.map(itemMapper::toDto);
     }
 
     public ItemDto createItem(ItemUpsertDto dto) {
@@ -54,7 +77,7 @@ public class ItemService {
     public void deleteItem(Long id) {
         Item item = itemRepository.findByIdWithChildren(id).orElseThrow(() -> new RuntimeException("Item not found"));
         if (!item.getChildren().isEmpty()) {
-            throw new ItemHasChildrenException("Item has children and cannot be deleted", 400);
+            throw new ItemHasChildrenException(item.getTitle(), item.getChildren().size());
         }
         itemRepository.delete(item);
     }

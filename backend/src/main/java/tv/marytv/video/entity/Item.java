@@ -39,6 +39,10 @@ public class Item {
     @Column(name = "is_headline")
     private boolean isHeadline = false;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "content_type")
+    private ContentType contentType = ContentType.STANDALONE;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Item parent;
@@ -53,4 +57,8 @@ public class Item {
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Item> children = List.of();
+
+    public enum ContentType {
+        SERIES_HEADER, STANDALONE, EPISODE
+    }
 }

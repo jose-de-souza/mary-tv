@@ -20,6 +20,7 @@ public class ItemMapper {
                 item.getItemDate(),
                 item.isNew(),
                 item.isHeadline(),
+                item.getContentType().name(),
                 item.getParent() != null ? item.getParent().getId() : null,
                 item.getCategory() != null ? item.getCategory().getId() : null,
                 item.getEvent() != null ? item.getEvent().getId() : null,
@@ -28,7 +29,6 @@ public class ItemMapper {
     }
 
     public ItemDto toDtoWithChildren(Item item) {
-        // Recursive mapping for children
         List<ItemDto> childrenDtos = item.getChildren().stream()
                 .map(this::toDtoWithChildren)
                 .toList();
@@ -41,6 +41,7 @@ public class ItemMapper {
                 item.getItemDate(),
                 item.isNew(),
                 item.isHeadline(),
+                item.getContentType().name(),
                 item.getParent() != null ? item.getParent().getId() : null,
                 item.getCategory() != null ? item.getCategory().getId() : null,
                 item.getEvent() != null ? item.getEvent().getId() : null,
@@ -62,6 +63,7 @@ public class ItemMapper {
         item.setItemDate(dto.itemDate());
         item.setNew(dto.isNew());
         item.setHeadline(dto.isHeadline());
+        item.setContentType(Item.ContentType.valueOf(dto.contentType()));
         // Relations set in service
     }
 }

@@ -8,7 +8,7 @@ CREATE TABLE categories
 CREATE TABLE events
 (
     id   BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255) UNIQUE NOT NULL
+    name VARCHAR(255) NOT NULL
 );
 
 -- Core content table
