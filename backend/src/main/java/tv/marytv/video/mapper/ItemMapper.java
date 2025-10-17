@@ -3,31 +3,67 @@ package tv.marytv.video.mapper;
 import tv.marytv.video.dto.ItemDto;
 import tv.marytv.video.dto.ItemUpsertDto;
 import tv.marytv.video.entity.Item;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
-public interface ItemMapper {
+@Component
+public class ItemMapper {
 
-    ItemMapper INSTANCE = Mappers.getMapper(ItemMapper.class);
+    public ItemDto toDto(Item item) {
+        return new ItemDto(
+                item.getId(),
+                item.getTitle(),
+                item.getDescription(),
+                item.getIconUrl(),
+                item.getVideoUrl(),
+                item.getItemDate(),
+                item.isNew(),
+                item.isHeadline(),
+                item.getContentType().name(),
+                item.getParent() != null ? item.getParent().getId() : null,
+                item.getCategory() != null ? item.getCategory().getId() : null,
+                item.getEvent() != null ? item.getEvent().getId() : null,
+                List.of() // Placeholder; use toDtoWithChildren for full
+        );
+    }
 
-    @Mapping(target = "children", expression = "java(item.getChildren() != null ? item.getChildren().stream().map(this::toDto).collect(java.util.stream.Collectors.toList()) : java.util.List.of())")
-    @Mapping(target = "parentId", expression = "java(item.getParent() != null ? item.getParent().getId() : null)")
-    @Mapping(target = "categoryId", expression = "java(item.getCategory() != null ? item.getCategory().getId() : null)")
-    @Mapping(target = "eventId", expression = "java(item.getEvent() != null ? item.getEvent().getId() : null)")
-    ItemDto toDto(Item item);
+    public ItemDto toDtoWithChildren(Item item) {
+        List<ItemDto> childrenDtos = item.getChildren().stream()
+                .map(this::toDtoWithChildren)
+                .toList();
+        return new ItemDto(
+                item.getId(),
+                item.getTitle(),
+                item.getDescription(),
+                item.getIconUrl(),
+                item.getVideoUrl(),
+                item.getItemDate(),
+                item.isNew(),
+                item.isHeadline(),
+                item.getContentType().name(),
+                item.getParent() != null ? item.getParent().getId() : null,
+                item.getCategory() != null ? item.getCategory().getId() : null,
+                item.getEvent() != null ? item.getEvent().getId() : null,
+                childrenDtos
+        );
+    }
 
-    List<ItemDto> toDtoList(List<Item> items);
+    public Item toEntity(ItemUpsertDto dto) {
+        Item item = new Item();
+        updateEntityFromDto(dto, item);
+        return item;
+    }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "children", ignore = true)
-    @Mapping(target = "parent", ignore = true)
-    @Mapping(target = "category", ignore = true)
-    @Mapping(target = "event", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    Item toEntity(ItemUpsertDto itemUpsertDto);
+    public void updateEntityFromDto(ItemUpsertDto dto, Item item) {
+        item.setTitle(dto.title());
+        item.setDescription(dto.description());
+        item.setIconUrl(dto.iconUrl());
+        item.setVideoUrl(dto.videoUrl());
+        item.setItemDate(dto.itemDate());
+        item.setNew(dto.isNew());
+        item.setHeadline(dto.isHeadline());
+        item.setContentType(Item.ContentType.valueOf(dto.contentType()));
+        // Relations set in service
+    }
 }

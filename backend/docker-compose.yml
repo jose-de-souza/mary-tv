@@ -5,6 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: marytv-backend:latest
+    container_name: marytv-backend
     depends_on:
       postgres:
         condition: service_healthy
@@ -13,12 +14,13 @@ services:
 
   postgres:
     image: postgres:14
+    container_name: marytv-postgres
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - marytv-postgres-data:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
@@ -32,4 +34,4 @@ networks:
     driver: bridge
 
 volumes:
-  postgres-data:
+  marytv-postgres-data:

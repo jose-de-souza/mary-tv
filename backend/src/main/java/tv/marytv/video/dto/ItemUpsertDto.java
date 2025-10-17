@@ -10,6 +10,7 @@ public record ItemUpsertDto(
         Date itemDate,
         boolean isNew,
         boolean isHeadline,
+        String contentType,
         Long parentId,
         Long categoryId,
         Long eventId

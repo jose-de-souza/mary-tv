@@ -3,22 +3,24 @@ package tv.marytv.video.mapper;
 import tv.marytv.video.dto.UserDto;
 import tv.marytv.video.dto.UserUpsertDto;
 import tv.marytv.video.entity.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
+@Component
+public class UserMapper {
 
-@Mapper(componentModel = "spring")
-public interface UserMapper {
+    public UserDto toDto(User user) {
+        return new UserDto(user.getId(), user.getUsername(), user.getRole());
+    }
 
-    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
+    public User toEntity(UserUpsertDto dto) {
+        User user = new User();
+        updateEntityFromDto(dto, user);
+        return user;
+    }
 
-    UserDto toDto(User user);
-
-    List<UserDto> toDtoList(List<User> users);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "passwordHash", ignore = true)
-    User toEntity(UserUpsertDto userUpsertDto);
+    public void updateEntityFromDto(UserUpsertDto dto, User user) {
+        user.setUsername(dto.username());
+        user.setRole(dto.role() != null ? dto.role() : user.getRole());
+        // Password handled in service
+    }
 }

@@ -5,73 +5,56 @@ import tv.marytv.video.dto.UserUpsertDto;
 import tv.marytv.video.entity.User;
 import tv.marytv.video.mapper.UserMapper;
 import tv.marytv.video.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
+    @Autowired
+    private UserRepository userRepository;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userMapper = userMapper;
-    }
+    @Autowired
+    private UserMapper userMapper;
 
-    @Transactional(readOnly = true)
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
+        List<User> users = userRepository.findAll();
+        return users.stream()
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public Optional<UserDto> getUserById(Long id) {
-        return userRepository.findById(id).map(userMapper::toDto);
-    }
-
-    @Transactional
-    public UserDto createUser(UserUpsertDto userDto) {
-        User user = userMapper.toEntity(userDto);
-        user.setPasswordHash(passwordEncoder.encode(userDto.password()));
-        user.setRole(userDto.role() != null ? userDto.role() : "ADMIN");
-        User savedUser = userRepository.save(user);
-        return userMapper.toDto(savedUser);
-    }
-
-    @Transactional
-    public Optional<UserDto> updateUser(Long id, UserUpsertDto userDto) {
-        return userRepository.findById(id)
-                .map(existingUser -> {
-                    existingUser.setUsername(userDto.username());
-
-                    if (userDto.password() != null && !userDto.password().isEmpty()) {
-                        existingUser.setPasswordHash(passwordEncoder.encode(userDto.password()));
-                    }
-
-                    if (userDto.role() != null) {
-                        existingUser.setRole(userDto.role());
-                    }
-
-                    User updatedUser = userRepository.save(existingUser);
-                    return userMapper.toDto(updatedUser);
-                });
-    }
-
-    @Transactional
-    public boolean deleteUser(Long id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-            return true;
+    public UserDto createUser(UserUpsertDto dto) {
+        if (userRepository.findByUsername(dto.username()).isPresent()) {
+            throw new RuntimeException("User already exists");
         }
-        return false;
+        User user = userMapper.toEntity(dto);
+        user.setPasswordHash(passwordEncoder.encode(dto.password()));
+        User saved = userRepository.save(user);
+        return userMapper.toDto(saved);
+    }
+
+    public UserDto updateUser(Long id, UserUpsertDto dto) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        userMapper.updateEntityFromDto(dto, user);
+        if (dto.password() != null) {
+            user.setPasswordHash(passwordEncoder.encode(dto.password()));
+        }
+        User updated = userRepository.save(user);
+        return userMapper.toDto(updated);
+    }
+
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository.delete(user);
     }
 }

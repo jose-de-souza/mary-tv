@@ -5,62 +5,45 @@ import tv.marytv.video.dto.EventUpsertDto;
 import tv.marytv.video.entity.Event;
 import tv.marytv.video.mapper.EventMapper;
 import tv.marytv.video.repository.EventRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class EventService {
 
-    private final EventRepository eventRepository;
-    private final EventMapper eventMapper;
+    @Autowired
+    private EventRepository eventRepository;
 
-    public EventService(EventRepository eventRepository, EventMapper eventMapper) {
-        this.eventRepository = eventRepository;
-        this.eventMapper = eventMapper;
-    }
+    @Autowired
+    private EventMapper eventMapper;
 
-    @Transactional(readOnly = true)
     public List<EventDto> getAllEvents() {
-        return eventMapper.toDtoList(eventRepository.findAll());
+        List<Event> events = eventRepository.findAll();
+        return events.stream()
+                .map(eventMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public Optional<EventDto> getEventById(Long id) {
-        return eventRepository.findById(id).map(eventMapper::toDto);
+    public EventDto createEvent(EventUpsertDto dto) {
+        Event event = eventMapper.toEntity(dto);
+        Event saved = eventRepository.save(event);
+        return eventMapper.toDto(saved);
     }
 
-    @Transactional
-    public EventDto createEvent(EventUpsertDto eventDto) {
-        if (eventDto.name() == null || eventDto.name().isEmpty()) {
-            throw new IllegalArgumentException("Event name is required");
-        }
-        Event event = eventMapper.toEntity(eventDto);
-        Event savedEvent = eventRepository.save(event);
-        return eventMapper.toDto(savedEvent);
+    public EventDto updateEvent(Long id, EventUpsertDto dto) {
+        Event event = eventRepository.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
+        eventMapper.updateEntityFromDto(dto, event);
+        Event updated = eventRepository.save(event);
+        return eventMapper.toDto(updated);
     }
 
-    @Transactional
-    public Optional<EventDto> updateEvent(Long id, EventUpsertDto eventDto) {
-        return eventRepository.findById(id)
-                .map(existingEvent -> {
-                    if (eventDto.name() != null && !eventDto.name().isEmpty()) {
-                        existingEvent.setName(eventDto.name());
-                    }
-                    Event updatedEvent = eventRepository.save(existingEvent);
-                    return eventMapper.toDto(updatedEvent);
-                });
-    }
-
-    @Transactional
-    public boolean deleteEvent(Long id) {
-        return eventRepository.findById(id)
-                .map(event -> {
-                    eventRepository.deleteById(id);
-                    return true;
-                })
-                .orElse(false);
+    public void deleteEvent(Long id) {
+        Event event = eventRepository.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
+        eventRepository.delete(event);
     }
 }

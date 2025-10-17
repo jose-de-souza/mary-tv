@@ -3,21 +3,22 @@ package tv.marytv.video.mapper;
 import tv.marytv.video.dto.CategoryDto;
 import tv.marytv.video.dto.CategoryUpsertDto;
 import tv.marytv.video.entity.Category;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
+@Component
+public class CategoryMapper {
 
-@Mapper(componentModel = "spring")
-public interface CategoryMapper {
+    public CategoryDto toDto(Category category) {
+        return new CategoryDto(category.getId(), category.getName());
+    }
 
-    CategoryMapper INSTANCE = Mappers.getMapper(CategoryMapper.class);
+    public Category toEntity(CategoryUpsertDto dto) {
+        Category category = new Category();
+        updateEntityFromDto(dto, category);
+        return category;
+    }
 
-    CategoryDto toDto(Category category);
-
-    List<CategoryDto> toDtoList(List<Category> categories);
-
-    @Mapping(target = "id", ignore = true)
-    Category toEntity(CategoryUpsertDto categoryUpsertDto);
+    public void updateEntityFromDto(CategoryUpsertDto dto, Category category) {
+        category.setName(dto.name());
+    }
 }

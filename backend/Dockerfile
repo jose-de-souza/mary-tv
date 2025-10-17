@@ -17,7 +17,6 @@ COPY src ./src
 # Package the application
 RUN mvn package -DskipTests
 
-
 # --- Production Stage ---
 # Use a minimal and secure Java Runtime Environment (JRE) image. This creates a much smaller final image.
 FROM openjdk:21-jdk-slim

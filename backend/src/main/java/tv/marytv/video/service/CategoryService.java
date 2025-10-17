@@ -5,62 +5,45 @@ import tv.marytv.video.dto.CategoryUpsertDto;
 import tv.marytv.video.entity.Category;
 import tv.marytv.video.mapper.CategoryMapper;
 import tv.marytv.video.repository.CategoryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class CategoryService {
 
-    private final CategoryRepository categoryRepository;
-    private final CategoryMapper categoryMapper;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
-    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
-        this.categoryRepository = categoryRepository;
-        this.categoryMapper = categoryMapper;
-    }
+    @Autowired
+    private CategoryMapper categoryMapper;
 
-    @Transactional(readOnly = true)
     public List<CategoryDto> getAllCategories() {
-        return categoryMapper.toDtoList(categoryRepository.findAll());
+        List<Category> categories = categoryRepository.findAll();
+        return categories.stream()
+                .map(categoryMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public Optional<CategoryDto> getCategoryById(Long id) {
-        return categoryRepository.findById(id).map(categoryMapper::toDto);
+    public CategoryDto createCategory(CategoryUpsertDto dto) {
+        Category category = categoryMapper.toEntity(dto);
+        Category saved = categoryRepository.save(category);
+        return categoryMapper.toDto(saved);
     }
 
-    @Transactional
-    public CategoryDto createCategory(CategoryUpsertDto categoryDto) {
-        if (categoryDto.name() == null || categoryDto.name().isEmpty()) {
-            throw new IllegalArgumentException("Category name is required");
-        }
-        Category category = categoryMapper.toEntity(categoryDto);
-        Category savedCategory = categoryRepository.save(category);
-        return categoryMapper.toDto(savedCategory);
+    public CategoryDto updateCategory(Long id, CategoryUpsertDto dto) {
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        categoryMapper.updateEntityFromDto(dto, category);
+        Category updated = categoryRepository.save(category);
+        return categoryMapper.toDto(updated);
     }
 
-    @Transactional
-    public Optional<CategoryDto> updateCategory(Long id, CategoryUpsertDto categoryDto) {
-        return categoryRepository.findById(id)
-                .map(existingCategory -> {
-                    if (categoryDto.name() != null && !categoryDto.name().isEmpty()) {
-                        existingCategory.setName(categoryDto.name());
-                    }
-                    Category updatedCategory = categoryRepository.save(existingCategory);
-                    return categoryMapper.toDto(updatedCategory);
-                });
-    }
-
-    @Transactional
-    public boolean deleteCategory(Long id) {
-        return categoryRepository.findById(id)
-                .map(category -> {
-                    categoryRepository.deleteById(id);
-                    return true;
-                })
-                .orElse(false);
+    public void deleteCategory(Long id) {
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        categoryRepository.delete(category);
     }
 }
