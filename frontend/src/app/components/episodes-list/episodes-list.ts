@@ -11,7 +11,7 @@ import { Item } from '../../models';
 import { ItemService } from '../../services/item.service';
 import { AuthService } from '../../services/auth.service';
 import { DataTableComponent } from '../data-table/data-table';
-import { VideoPlayerDialogComponent } from '../video-player-dialog/video-player-dialog'; // Correct import
+import { VideoPlayerDialogComponent } from '../video-player-dialog/video-player-dialog';
 import { ItemEditDialogComponent } from '../item-edit-dialog/item-edit-dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog';
 
@@ -67,9 +67,9 @@ export class EpisodesListComponent implements OnInit {
         if (res.success) {
           this.episodes = res.data.content;
           this.totalElements = res.data.totalElements;
-          // Try to get the title - this relies on the backend sending parent info or requires another call
-          if (this.episodes.length > 0) {
-             // For now, use the ID until backend details are confirmed
+          // **Corrected Logic**: Check parentId, not parent object
+          if (this.episodes.length > 0 && this.episodes[0].parentId) {
+             // Still using ID for now as backend parent data structure wasn't confirmed
             this.seriesTitle = `Series #${this.seriesId}`;
           }
         }

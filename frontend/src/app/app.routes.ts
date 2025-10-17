@@ -25,7 +25,7 @@ export const appRoutes: Routes = [
   {
     path: 'series/:seriesId/episodes',
     loadComponent: () =>
-      import('./components/episodes-list/episodes-list').then( // Correct path
+      import('./components/episodes-list/episodes-list').then( // Ensure this path is correct
         (m) => m.EpisodesListComponent
       ),
   },

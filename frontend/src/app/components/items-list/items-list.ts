@@ -23,7 +23,7 @@ import { CategoryService } from '../../services/category.service';
 import { DataTableComponent } from '../data-table/data-table';
 import { ItemEditDialogComponent } from '../item-edit-dialog/item-edit-dialog';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog';
-import { VideoPlayerDialogComponent } from '../video-player-dialog/video-player-dialog'; // Correct path
+import { VideoPlayerDialogComponent } from '../video-player-dialog/video-player-dialog'; // Ensure this path is correct
 
 @Component({
   selector: 'app-items-list',
